@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link rel="stylesheet" href="/static/bot-style.css"/>
+    <title>Arivagam-Bot</title>
+  </head>
+  <body>
+      <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #92765D">
+        <div class="container-fluid">
+          <a class="navbar-brand" href="#">ARIVAGAM<span class="dot">.</span></a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+              <li class="nav-item">
+                <a class="nav-link active" aria-current="page" href="#">TEST</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">COURSES</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">REPORTS</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">MEET</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">NANBA</a>
+              </li>
+            </ul>
+            <form class="d-flex">
+              <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+              <button class="btn btn-outline-success" type="submit">Search</button>
+            </form>
+          </div>
+        </div>
+      </nav>
+      <div class="chat-layout">
+        <div class="chat-container">
+          <div class="chat-messages">
+            {% for message in chat_history %}
+              <div class="message {% if message.sender == 'user' %}query{% else %}output{% endif %}">
+                <div class="boxes">
+                  <h4>{{ message.text }}</h4>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+        <div class="chat-history-list">
+          {% for message in chat_history %}
+            {% if message.sender == 'user' %}
+              <div class="message query">
+                <h4>{{ message.text }}</h4>
+              </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+      </div>        
+      <div class="chat-input-container">
+        <form class="bot-qn" action="/store_message" method="POST">
+          <input type="text" class="doubt" placeholder="Ask your doubts here..." name="dbt">
+          <button type="submit" id="button">Ask</button>
+        </form>
+      </div>
+      <script>
+        const chatHistory = document.querySelector('.chat-messages');
+        function appendMessage(sender, message) {
+          const messageDiv = document.createElement('div');
+          messageDiv.classList.add('message');
+          messageDiv.textContent = message;
+          chatHistory.appendChild(messageDiv);
+          chatHistory.scrollTop = chatHistory.scrollHeight;
+        }
+        async function fetchChatMessages() {
+          try {
+            const response = await fetch('/api/get-chat-messages'); 
+            console.log('Response:', response);
+            const data = await response.json();
+            console.log('Data:', data);
+            if (data.success) {
+              const chatMessages = data.messages; 
+              chatMessages.forEach((message) => {
+                appendMessage(message.sender, message.text);
+                });
+            } else {
+              console.error('Failed to fetch chat messages.');
+            }
+          } catch (error) {
+            console.error('Error fetching chat messages:', error);
+          }
+        }
+        fetchChatMessages();
+      </script>
+      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+  </body>
+</html>
